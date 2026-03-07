@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fgoPpp/gnss/input/rinex/rinexObsTypes.hpp"
+#include "input/rinex/rinexObsTypes.hpp"
 #include <cstdint>
 #include <filesystem>
 #include <istream>

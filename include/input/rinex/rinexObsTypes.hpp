@@ -1,9 +1,9 @@
 #pragma once
 
-#include "fgoPpp/gnss/common/obsMeasurement.hpp"
-#include "fgoPpp/gnss/common/obsCode.hpp"
-#include "fgoPpp/gnss/common/satId.hpp"
-#include "fgoPpp/gnss/time/GnssTime.hpp"
+#include "common/obsMeasurement.hpp"
+#include "common/obsCode.hpp"
+#include "common/satId.hpp"
+#include "time/GnssTime.hpp"
 #include <cstdint>
 #include <string>
 #include <unordered_map>
