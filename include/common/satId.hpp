@@ -10,15 +10,15 @@
 namespace gnss
 {
 
-//------------------------------------------------------------//
-//                  Constellation System                      //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                           Constellation System                                //
+//------------------------------------------------------------------------------//
 
 /*!
  * \brief RINEX 3 single-character satellite constellation identifier.
  *
  * Each enumerator stores the exact ASCII character used in RINEX 3 system codes,
- * allowing a direct cast to \c char for string formatting and file serialisation.
+ * allowing a direct cast to char for string formatting and file serialisation.
  */
 enum class Constellation : char
 {
@@ -31,14 +31,14 @@ enum class Constellation : char
     NavIC   = 'I', /*!< Navigation with Indian Constellation (India) */
 };
 
-//------------------------------------------------------------//
-//                    Satellite Identifier                    //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                           Satellite Identifier                                //
+//------------------------------------------------------------------------------//
 
 /*!
  * \brief Compact satellite identifier combining constellation system and PRN number.
  *
- * Packs system and PRN into a \c uint16_t (upper byte = constellation char,
+ * Packs system and PRN into a uint16_t (upper byte = constellation char,
  * lower byte = PRN) to enable O(1) hashing and single-integer comparison across
  * all processing modules.
  *
@@ -47,19 +47,19 @@ enum class Constellation : char
  */
 struct SatId
 {
-    //------------------------------------------------------------//
-    //                     Member Variables                       //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                            Member Variables                               //
+    //--------------------------------------------------------------------------//
 
     Constellation system; /*!< Constellation to which this satellite belongs */
     std::uint8_t  prn;    /*!< 1-based PRN number (GPS: 1–32, Galileo: 1–36, BeiDou: 1–63) */
 
-    //------------------------------------------------------------//
-    //                   Packing and Comparison                   //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                          Packing and Comparison                           //
+    //--------------------------------------------------------------------------//
 
     /*!
-     * \brief Pack the satellite identifier into a \c uint16_t.
+     * \brief Pack the satellite identifier into a uint16_t.
      *
      * Upper byte = constellation char value, lower byte = PRN.
      * Used by the hash specialisation and comparison operators.
@@ -79,20 +79,20 @@ struct SatId
         return packIntoUint16() < other.packIntoUint16();
     }
 
-    //------------------------------------------------------------//
-    //                   RINEX 3 Serialisation                    //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                          RINEX 3 Serialisation                            //
+    //--------------------------------------------------------------------------//
 
     /*!
      * \brief Parse a RINEX 3 3-character satellite identifier string.
      *
      * Accepts strings of the form "G01", "R07", "E36", "C21", etc.
-     * Returns \c std::nullopt if the string is shorter than 3 characters,
+     * Returns std::nullopt if the string is shorter than 3 characters,
      * the system character is unrecognised, the PRN digits are non-numeric,
      * or the PRN value is zero.
      *
      * \param[in] rinex3String  View over the 3-character satellite identifier.
-     * \return                  Parsed \c SatId, or \c std::nullopt on malformed input.
+     * \return                  Parsed SatId, or std::nullopt on malformed input.
      */
     static std::optional<SatId> parseSatelliteIdFromRinex3String(
         std::string_view rinex3String) noexcept
@@ -142,14 +142,14 @@ struct SatId
 
 } // namespace gnss
 
-//------------------------------------------------------------//
-//              std::hash Specialisation for SatId            //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                     std::hash Specialisation for SatId                         //
+//------------------------------------------------------------------------------//
 
 /*!
- * \brief Hash specialisation enabling \c gnss::SatId as an \c unordered_map key.
+ * \brief Hash specialisation enabling gnss::SatId as an unordered_map key.
  *
- * Delegates to \c std::hash<uint16_t> via \c SatId::packIntoUint16().
+ * Delegates to std::hash<uint16_t> via SatId::packIntoUint16().
  */
 template <>
 struct std::hash<gnss::SatId>

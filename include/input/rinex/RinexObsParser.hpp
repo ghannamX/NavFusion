@@ -12,9 +12,9 @@
 namespace gnss::rinex
 {
 
-//------------------------------------------------------------//
-//                    Parse Error Types                       //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                            Parse Error Types                                  //
+//------------------------------------------------------------------------------//
 
 /*!
  * \brief Enumeration of RINEX 3 observation file parse error categories.
@@ -36,9 +36,9 @@ enum class ParseErrorCode : std::uint8_t
  */
 struct ParseError
 {
-    //------------------------------------------------------------//
-    //                      Member Variables                      //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                            Member Variables                               //
+    //--------------------------------------------------------------------------//
 
     ParseErrorCode code;
     /*!< Category of the error for programmatic handling. */
@@ -50,45 +50,45 @@ struct ParseError
     /*!< Human-readable description of the error, including relevant file content. */
 };
 
-//------------------------------------------------------------//
-//                       Parse Result                         //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                              Parse Result                                     //
+//------------------------------------------------------------------------------//
 
 /*!
- * \brief Discriminated union of a successful parse result or a \c ParseError.
+ * \brief Discriminated union of a successful parse result or a ParseError.
  *
  * Avoids exceptions for recoverable parse failures. Always check
- * \c parseSucceeded() before calling \c getResult() or \c moveResult().
+ * parseSucceeded() before calling getResult() or moveResult().
  *
- * \tparam T  The type of the successfully parsed value.
+ * \param T  The type of the successfully parsed value.
  */
 template <typename T>
 class ParseResult
 {
 public:
-    //------------------------------------------------------------//
-    //                      Factory Methods                       //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                           Factory Methods                                 //
+    //--------------------------------------------------------------------------//
 
-    /*! \brief Construct a successful result holding \p value. */
+    /*! \brief Construct a successful result holding value. */
     static ParseResult success(T value)
     {
         return ParseResult{std::move(value)};
     }
 
-    /*! \brief Construct a failed result holding \p error. */
+    /*! \brief Construct a failed result holding error. */
     static ParseResult failure(ParseError error)
     {
         return ParseResult{std::move(error)};
     }
 
-    //------------------------------------------------------------//
-    //                      Accessor Methods                      //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                           Accessor Methods                                //
+    //--------------------------------------------------------------------------//
 
     /*!
-     * \brief Returns \c true if parsing succeeded and a result value is available.
-     * \return \c true on success, \c false on failure.
+     * \brief Returns true if parsing succeeded and a result value is available.
+     * \return true on success, false on failure.
      */
     bool parseSucceeded() const noexcept
     {
@@ -98,7 +98,7 @@ public:
     /*!
      * \brief Returns a const reference to the parsed value.
      *
-     * Behaviour is undefined if \c parseSucceeded() returns \c false.
+     * Behaviour is undefined if parseSucceeded() returns false.
      *
      * \return Const reference to the parsed result.
      */
@@ -110,7 +110,7 @@ public:
     /*!
      * \brief Move the parsed value out of this result object.
      *
-     * Behaviour is undefined if \c parseSucceeded() returns \c false.
+     * Behaviour is undefined if parseSucceeded() returns false.
      *
      * \return Rvalue reference to the parsed result.
      */
@@ -122,9 +122,9 @@ public:
     /*!
      * \brief Returns a const reference to the parse error.
      *
-     * Behaviour is undefined if \c parseSucceeded() returns \c true.
+     * Behaviour is undefined if parseSucceeded() returns true.
      *
-     * \return Const reference to the \c ParseError.
+     * \return Const reference to the ParseError.
      */
     const ParseError &getParseError() const
     {
@@ -138,23 +138,23 @@ private:
     std::variant<T, ParseError> storage_;
 };
 
-//------------------------------------------------------------//
-//                     Parser Options                         //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                             Parser Options                                    //
+//------------------------------------------------------------------------------//
 
 /*!
  * \brief Configuration for the RINEX 3 observation file parser.
  */
 struct RinexObsParserOptions
 {
-    //------------------------------------------------------------//
-    //                      Member Variables                      //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                            Member Variables                               //
+    //--------------------------------------------------------------------------//
 
     std::vector<Constellation> constellationFilter;
     /*!< If non-empty, only satellites of these constellations are stored.
      *   An empty vector accepts all constellations present in the file.
-     *   Example: \c { Constellation::GPS } for GPS-only processing. */
+     *   Example: { Constellation::GPS } for GPS-only processing. */
 
     std::size_t expectedEpochCount = 0;
     /*!< Pre-allocation hint for the epochs vector. Set to the approximate number
@@ -162,14 +162,14 @@ struct RinexObsParserOptions
      *   0 means no pre-allocation. */
 
     bool skipMalformedSatelliteLines = false;
-    /*!< If \c true, malformed satellite data lines are silently skipped rather than
+    /*!< If true, malformed satellite data lines are silently skipped rather than
      *   causing the parse to fail. Useful for files with minor formatting deviations.
-     *   Default: \c false (strict parsing). */
+     *   Default: false (strict parsing). */
 };
 
-//------------------------------------------------------------//
-//                    RINEX 3 Obs Parser                      //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                          RINEX 3 Obs Parser                                   //
+//------------------------------------------------------------------------------//
 
 /*!
  * \brief Stateless parser for RINEX 3.03 and 3.04 observation files.
@@ -177,25 +177,24 @@ struct RinexObsParserOptions
  * Construct once with options, then call the parse methods as many times as needed.
  * Supports both file-path input and stream input for unit testability.
  *
- * \section rinex3_format RINEX 3 observation file structure
- *  - \b Header: records with a 60-character content field followed by a 20-character
- *    label (columns 60–79). Terminated by the \c END OF HEADER record.
- *  - \b Epoch \b records: each starts with a \c '>' marker line, followed by one
+ * RINEX 3 observation file structure:
+ *  - Header: records with a 60-character content field followed by a 20-character
+ *    label (columns 60–79). Terminated by the END OF HEADER record.
+ *  - Epoch records: each starts with a '>' marker line, followed by one
  *    data line per satellite. Each satellite line begins with a 3-character satellite
- *    identifier, then N×16-character observation blocks
+ *    identifier, then N x 16-character observation blocks
  *    (14-character value + 1-character LLI + 1-character signal strength),
- *    where N is given by the \c SYS / # / OBS TYPES header record.
+ *    where N is given by the SYS / # / OBS TYPES header record.
  *
- * \section reference Reference
- *  RINEX: The Receiver Independent Exchange Format, Version 3.04.
+ * Reference: RINEX: The Receiver Independent Exchange Format, Version 3.04.
  *  IGS / RTCM-SC104, November 2021.
  */
 class RinexObsParser
 {
 public:
-    //------------------------------------------------------------//
-    //            Constructor / Destructor / Move                  //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                    Constructor / Destructor / Move                         //
+    //--------------------------------------------------------------------------//
 
     /*! \brief Construct a parser with the given options. */
     explicit RinexObsParser(RinexObsParserOptions options = {}) noexcept;
@@ -205,15 +204,15 @@ public:
     RinexObsParser(RinexObsParser &&)                 = default;
     RinexObsParser &operator=(RinexObsParser &&)      = default;
 
-    //------------------------------------------------------------//
-    //                     Public Parse Methods                    //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                         Public Parse Methods                              //
+    //--------------------------------------------------------------------------//
 
     /*!
      * \brief Parse a complete RINEX 3 observation file from the filesystem.
      *
      * \param[in] filePath  Path to the RINEX 3 observation file.
-     * \return              \c ParseResult<RinexObsData> — success or a \c ParseError.
+     * \return              ParseResult<RinexObsData> — success or a ParseError.
      */
     ParseResult<RinexObsData> parseObservationFile(
         const std::filesystem::path &filePath) const;
@@ -223,7 +222,7 @@ public:
      *
      * \param[in] stream      Open input stream positioned at the start of the file.
      * \param[in] sourceName  Label used in error descriptions to identify the data source.
-     * \return                \c ParseResult<RinexObsData> — success or a \c ParseError.
+     * \return                ParseResult<RinexObsData> — success or a ParseError.
      */
     ParseResult<RinexObsData> parseObservationStream(
         std::istream    &stream,
@@ -235,7 +234,7 @@ public:
      * Skips all epoch data. Useful for inspecting metadata without loading the full file.
      *
      * \param[in] filePath  Path to the RINEX 3 observation file.
-     * \return              \c ParseResult<RinexObsHeader> — success or a \c ParseError.
+     * \return              ParseResult<RinexObsHeader> — success or a ParseError.
      */
     ParseResult<RinexObsHeader> parseObservationFileHeader(
         const std::filesystem::path &filePath) const;
@@ -245,25 +244,25 @@ public:
      *
      * \param[in] stream      Open input stream positioned at the start of the file.
      * \param[in] sourceName  Label used in error descriptions.
-     * \return                \c ParseResult<RinexObsHeader> — success or a \c ParseError.
+     * \return                ParseResult<RinexObsHeader> — success or a ParseError.
      */
     ParseResult<RinexObsHeader> parseObservationStreamHeader(
         std::istream    &stream,
         std::string_view sourceName = "<stream>") const;
 
 private:
-    //------------------------------------------------------------//
-    //                     Private Members                        //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                           Private Members                                 //
+    //--------------------------------------------------------------------------//
 
     RinexObsParserOptions options_;
 
     // Internal line-by-line parse state. Defined in the .cpp to keep the header clean.
     struct InternalParseState;
 
-    //------------------------------------------------------------//
-    //                   Private Parse Helpers                    //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                        Private Parse Helpers                               //
+    //--------------------------------------------------------------------------//
 
     ParseResult<RinexObsHeader> parseHeaderSection(
         InternalParseState &state) const;

@@ -9,26 +9,26 @@
 namespace gnss
 {
 
-//------------------------------------------------------------//
-//                     Observation Code                       //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                            Observation Code                                  //
+//------------------------------------------------------------------------------//
 
 /*!
  * \brief RINEX 3 three-character observation code: [type][band][attribute].
  *
  * Each GNSS signal measurement is uniquely identified by three characters:
  *
- *  \b type      : measurement type
+ *  type      : measurement type
  *   - C = pseudorange (code measurement, in metres)
  *   - L = carrier phase (in cycles)
  *   - D = Doppler frequency shift (in Hz)
  *   - S = signal-to-noise ratio (in dB-Hz)
  *
- *  \b band      : frequency band digit — 1, 2, 5, 6, 7, 8, 9
+ *  band      : frequency band digit — 1, 2, 5, 6, 7, 8, 9
  *
- *  \b attribute : tracking mode / channel — C, W, Q, X, P, A, S, L, I, D, B, Z, Y, M, N
+ *  attribute : tracking mode / channel — C, W, Q, X, P, A, S, L, I, D, B, Z, Y, M, N
  *
- * The three characters are packed into a \c uint32_t (one char per byte, 4th byte = 0)
+ * The three characters are packed into a uint32_t (one char per byte, 4th byte = 0)
  * for O(1) hash and single-integer equality test — no heap allocation, no string overhead.
  * The design is open-ended: any future RINEX band digit or attribute letter is representable
  * without modifying this struct.
@@ -41,20 +41,20 @@ namespace gnss
  */
 struct ObsCode
 {
-    //------------------------------------------------------------//
-    //                     Member Variables                       //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                            Member Variables                               //
+    //--------------------------------------------------------------------------//
 
     char type; /*!< Measurement type   : C | L | D | S */
     char band; /*!< Frequency band     : '1' | '2' | '5' | '6' | '7' | '8' | '9' */
     char attr; /*!< Signal attribute   : C | W | Q | X | P | A | S | L | I | D | B | Z | Y | M | N */
 
-    //------------------------------------------------------------//
-    //                   Packing and Comparison                   //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                          Packing and Comparison                           //
+    //--------------------------------------------------------------------------//
 
     /*!
-     * \brief Pack the observation code into a \c uint32_t for fast hash and comparison.
+     * \brief Pack the observation code into a uint32_t for fast hash and comparison.
      *
      * Byte 0 = type, byte 1 = band, byte 2 = attr, byte 3 = 0 (padding).
      *
@@ -69,9 +69,9 @@ struct ObsCode
 
     constexpr bool operator==(const ObsCode &) const noexcept = default;
 
-    //------------------------------------------------------------//
-    //                   RINEX 3 Serialisation                    //
-    //------------------------------------------------------------//
+    //--------------------------------------------------------------------------//
+    //                          RINEX 3 Serialisation                            //
+    //--------------------------------------------------------------------------//
 
     /*!
      * \brief Parse a RINEX 3 3-character observation code string.
@@ -80,10 +80,10 @@ struct ObsCode
      * No validation is applied to the individual character values so that
      * future RINEX revisions introducing new band digits or attribute letters
      * are handled transparently.
-     * Returns \c std::nullopt only if the input is shorter than 3 characters.
+     * Returns std::nullopt only if the input is shorter than 3 characters.
      *
      * \param[in] rinex3String  View over the 3-character observation code.
-     * \return                  Parsed \c ObsCode, or \c std::nullopt on malformed input.
+     * \return                  Parsed ObsCode, or std::nullopt on malformed input.
      */
     static std::optional<ObsCode> parseObsCodeFromRinex3String(
         std::string_view rinex3String) noexcept
@@ -105,12 +105,12 @@ struct ObsCode
     }
 };
 
-//------------------------------------------------------------//
-//            Named Observation Code Constants                //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                      Named Observation Code Constants                         //
+//------------------------------------------------------------------------------//
 
 /*!
- * \brief Predefined \c ObsCode constants for frequently referenced GNSS signals.
+ * \brief Predefined ObsCode constants for frequently referenced GNSS signals.
  *
  * Used by observation models, cycle-slip detectors, and linear combination
  * modules (IF, MW, GF) to avoid magic strings throughout the processing pipeline.
@@ -158,14 +158,14 @@ inline constexpr ObsCode L2I{'L', '2', 'I'}; /*!< BeiDou B1I carrier phase */
 
 } // namespace gnss
 
-//------------------------------------------------------------//
-//             std::hash Specialisation for ObsCode           //
-//------------------------------------------------------------//
+//------------------------------------------------------------------------------//
+//                    std::hash Specialisation for ObsCode                       //
+//------------------------------------------------------------------------------//
 
 /*!
- * \brief Hash specialisation enabling \c gnss::ObsCode as an \c unordered_map key.
+ * \brief Hash specialisation enabling gnss::ObsCode as an unordered_map key.
  *
- * Delegates to \c std::hash<uint32_t> via \c ObsCode::packIntoUint32().
+ * Delegates to std::hash<uint32_t> via ObsCode::packIntoUint32().
  */
 template <>
 struct std::hash<gnss::ObsCode>
