@@ -381,10 +381,10 @@ void RinexObsParser::parseObservationTypesRecord(
     RinexObsHeader     &header,
     InternalParseState &state) const
 {
-    // RINEX 3 SYS / # / OBS TYPES format:
+    // RINEX 3 SYS / # / OBS TYPES format: A1, 2X, I3, 13(1X, A3)
     //   Col 0     : system character (G, R, E, C, J, S, I) or blank for continuation
     //   Col 3-5   : number of observation types (first line only)
-    //   Col 7+    : 4-char fields (1 space + 3-char obs code), up to 13 per line
+    //   Col 6+    : 4-char fields (1 space + 3-char obs code), up to 13 per line
 
     const char systemChar = line.empty() ? ' ' : line[0];
 
@@ -410,9 +410,10 @@ void RinexObsParser::parseObservationTypesRecord(
     // Parse observation codes from this line (first or continuation)
     auto &codeList = header.observationTypes[state.currentObsTypeConstellation];
 
-    // Up to 13 codes per line, starting at column 7, each 4 chars wide (space + 3-char code)
+    // Up to 13 codes per line, starting at column 6, each 4 chars wide (space + 3-char code)
+    // Format: A1, 2X, I3, 13(1X, A3) — descriptors begin at index 6
     constexpr int maxCodesPerLine = 13;
-    constexpr int startColumn     = 7;
+    constexpr int startColumn     = 6;
     constexpr int fieldWidth      = 4;
 
     for (int i = 0; i < maxCodesPerLine; ++i)
