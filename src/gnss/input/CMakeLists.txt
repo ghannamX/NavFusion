@@ -2,6 +2,7 @@ add_library(gnss_input OBJECT)
 
 target_sources(gnss_input PRIVATE
     rinex/RinexObsParser.cpp
+    rinex/RinexNavParser.cpp
 )
 
 target_include_directories(gnss_input

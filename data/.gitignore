@@ -1,0 +1,10 @@
+# Ignore large RINEX/SP3/product files — keep only .gitkeep placeholders
+*.rnx
+*.obs
+*.nav
+*.crx
+*.sp3
+*.clk
+*.atx
+*.ionex
+*.gz

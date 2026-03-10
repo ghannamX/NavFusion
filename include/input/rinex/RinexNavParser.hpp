@@ -1,6 +1,6 @@
 #pragma once
 
-#include "input/rinex/rinexObsTypes.hpp"
+#include "input/rinex/rinexNavTypes.hpp"
 #include "input/rinex/rinexParseResult.hpp"
 #include <cstdint>
 #include <filesystem>
@@ -17,53 +17,54 @@ namespace gnss::rinex
 //------------------------------------------------------------------------------//
 
 /*!
- * \brief Configuration for the RINEX 3 observation file parser.
+ * \brief Configuration for the RINEX 3 navigation file parser.
  */
-struct RinexObsParserOptions
+struct RinexNavParserOptions
 {
     //--------------------------------------------------------------------------//
     //                            Member Variables                               //
     //--------------------------------------------------------------------------//
 
     std::vector<Constellation> constellationFilter;
-    /*!< If non-empty, only satellites of these constellations are stored.
+    /*!< If non-empty, only ephemeris records of these constellations are stored.
      *   An empty vector accepts all constellations present in the file.
      *   Example: { Constellation::GPS } for GPS-only processing. */
 
-    std::size_t expectedEpochCount = 0;
-    /*!< Pre-allocation hint for the epochs vector. Set to the approximate number
-     *   of epochs in the file to avoid repeated heap reallocation during parsing.
+    std::size_t expectedRecordCount = 0;
+    /*!< Pre-allocation hint for the ephemeris vectors. Set to the approximate
+     *   number of records in the file to avoid repeated heap reallocation.
      *   0 means no pre-allocation. */
 
-    bool skipMalformedSatelliteLines = false;
-    /*!< If true, malformed satellite data lines are silently skipped rather than
+    bool skipMalformedRecords = false;
+    /*!< If true, malformed navigation records are silently skipped rather than
      *   causing the parse to fail. Useful for files with minor formatting deviations.
      *   Default: false (strict parsing). */
 };
 
 //------------------------------------------------------------------------------//
-//                          RINEX 3 Obs Parser                                   //
+//                          RINEX 3 Nav Parser                                   //
 //------------------------------------------------------------------------------//
 
 /*!
- * \brief Stateless parser for RINEX 3.03 and 3.04 observation files.
+ * \brief Stateless parser for RINEX 3.03 and 3.04 navigation message files.
  *
  * Construct once with options, then call the parse methods as many times as needed.
  * Supports both file-path input and stream input for unit testability.
  *
- * RINEX 3 observation file structure:
+ * Currently parses GPS broadcast ephemeris records (8-line Keplerian format).
+ * Non-GPS records (GLONASS, Galileo, BeiDou, etc.) are skipped with a log message.
+ *
+ * RINEX 3 navigation file structure:
  *  - Header: records with a 60-character content field followed by a 20-character
- *    label (columns 60–79). Terminated by the END OF HEADER record.
- *  - Epoch records: each starts with a '>' marker line, followed by one
- *    data line per satellite. Each satellite line begins with a 3-character satellite
- *    identifier, then N x 16-character observation blocks
- *    (14-character value + 1-character LLI + 1-character signal strength),
- *    where N is given by the SYS / # / OBS TYPES header record.
+ *    label (columns 60-79). Terminated by the END OF HEADER record.
+ *  - Data records: each begins with a satellite ID + epoch line (line 0),
+ *    followed by N broadcast orbit lines. For GPS: 7 orbit lines (8 lines total),
+ *    each containing 4 x D19.12 Fortran double-precision fields.
  *
  * Reference: RINEX: The Receiver Independent Exchange Format, Version 3.04.
- *  IGS / RTCM-SC104, November 2021.
+ *  IGS / RTCM-SC104, November 2021, Section 4 (Navigation Message Files).
  */
-class RinexObsParser
+class RinexNavParser
 {
 public:
     //--------------------------------------------------------------------------//
@@ -71,46 +72,47 @@ public:
     //--------------------------------------------------------------------------//
 
     /*! \brief Construct a parser with the given options. */
-    explicit RinexObsParser(RinexObsParserOptions options = {}) noexcept;
+    explicit RinexNavParser(RinexNavParserOptions options = {}) noexcept;
 
-    RinexObsParser(const RinexObsParser &)            = delete;
-    RinexObsParser &operator=(const RinexObsParser &) = delete;
-    RinexObsParser(RinexObsParser &&)                 = default;
-    RinexObsParser &operator=(RinexObsParser &&)      = default;
+    RinexNavParser(const RinexNavParser &)            = delete;
+    RinexNavParser &operator=(const RinexNavParser &) = delete;
+    RinexNavParser(RinexNavParser &&)                 = default;
+    RinexNavParser &operator=(RinexNavParser &&)      = default;
 
     //--------------------------------------------------------------------------//
     //                         Public Parse Methods                              //
     //--------------------------------------------------------------------------//
 
     /*!
-     * \brief Parse a complete RINEX 3 observation file from the filesystem.
+     * \brief Parse a complete RINEX 3 navigation file from the filesystem.
      *
-     * \param[in] filePath  Path to the RINEX 3 observation file.
-     * \return              ParseResult<RinexObsData> — success or a ParseError.
+     * \param[in] filePath  Path to the RINEX 3 navigation file.
+     * \return              ParseResult<RinexNavData> — success or a ParseError.
      */
-    ParseResult<RinexObsData> parseObservationFile(
+    ParseResult<RinexNavData> parseNavigationFile(
         const std::filesystem::path &filePath) const;
 
     /*!
-     * \brief Parse a complete RINEX 3 observation file from an open stream.
+     * \brief Parse a complete RINEX 3 navigation file from an open stream.
      *
      * \param[in] stream      Open input stream positioned at the start of the file.
      * \param[in] sourceName  Label used in error descriptions to identify the data source.
-     * \return                ParseResult<RinexObsData> — success or a ParseError.
+     * \return                ParseResult<RinexNavData> — success or a ParseError.
      */
-    ParseResult<RinexObsData> parseObservationStream(
+    ParseResult<RinexNavData> parseNavigationStream(
         std::istream    &stream,
         std::string_view sourceName = "<stream>") const;
 
     /*!
-     * \brief Parse only the header section of a RINEX 3 observation file.
+     * \brief Parse only the header section of a RINEX 3 navigation file.
      *
-     * Skips all epoch data. Useful for inspecting metadata without loading the full file.
+     * Skips all data records. Useful for inspecting metadata and ionospheric
+     * coefficients without loading the full file.
      *
-     * \param[in] filePath  Path to the RINEX 3 observation file.
-     * \return              ParseResult<RinexObsHeader> — success or a ParseError.
+     * \param[in] filePath  Path to the RINEX 3 navigation file.
+     * \return              ParseResult<RinexNavHeader> — success or a ParseError.
      */
-    ParseResult<RinexObsHeader> parseObservationFileHeader(
+    ParseResult<RinexNavHeader> parseNavigationFileHeader(
         const std::filesystem::path &filePath) const;
 
     /*!
@@ -118,9 +120,9 @@ public:
      *
      * \param[in] stream      Open input stream positioned at the start of the file.
      * \param[in] sourceName  Label used in error descriptions.
-     * \return                ParseResult<RinexObsHeader> — success or a ParseError.
+     * \return                ParseResult<RinexNavHeader> — success or a ParseError.
      */
-    ParseResult<RinexObsHeader> parseObservationStreamHeader(
+    ParseResult<RinexNavHeader> parseNavigationStreamHeader(
         std::istream    &stream,
         std::string_view sourceName = "<stream>") const;
 
@@ -129,7 +131,7 @@ private:
     //                           Private Members                                 //
     //--------------------------------------------------------------------------//
 
-    RinexObsParserOptions options_;
+    RinexNavParserOptions options_;
 
     // Internal line-by-line parse state. Defined in the .cpp to keep the header clean.
     struct InternalParseState;
@@ -138,26 +140,17 @@ private:
     //                        Private Parse Helpers                               //
     //--------------------------------------------------------------------------//
 
-    ParseResult<RinexObsHeader> parseHeaderSection(
+    ParseResult<RinexNavHeader> parseHeaderSection(
         InternalParseState &state) const;
 
-    ParseResult<RinexObsData> parseEpochSection(
+    ParseResult<RinexNavData> parseDataSection(
         InternalParseState &state,
-        RinexObsHeader      header) const;
+        RinexNavHeader      header) const;
 
-    ParseResult<RinexEpoch> parseSingleEpoch(
-        InternalParseState   &state,
-        const RinexObsHeader &header) const;
-
-    ParseResult<SatelliteObservation> parseSatelliteDataLine(
-        InternalParseState   &state,
-        const RinexObsHeader &header,
-        SatId                 satelliteId) const;
-
-    void parseObservationTypesRecord(
-        const std::string  &line,
-        RinexObsHeader     &header,
+    ParseResult<GpsBroadcastEphemeris> parseGpsNavigationRecord(
         InternalParseState &state) const;
+
+    int getOrbitLineCountForConstellation(char systemCharacter) const noexcept;
 
     bool isConstellationAccepted(Constellation system) const noexcept;
 };
