@@ -1,5 +1,4 @@
-بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-
+Bismillah
  *"And He it is Who made the stars for you that you might follow the right direction thereby in the darkness of the land and the sea."* — Quran 6:97
 # FGO-PPP — Factor Graph Optimization for Precise Point Positioning
 
