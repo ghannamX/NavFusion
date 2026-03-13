@@ -1,11 +1,10 @@
 add_library(gnss_satellite OBJECT)
 
 target_sources(gnss_satellite PRIVATE
-    # BroadcastOrbit.cpp
-    # OrbitInterpolator.cpp
-    # GloOrbitIntegrator.cpp
-    # SatClock.cpp
-    # SatelliteSelector.cpp
+    BroadcastOrbitComputer.cpp
+    SatelliteClockCorrector.cpp
+    EphemerisSelector.cpp
+    SagnacCorrection.cpp
 )
 
 target_include_directories(gnss_satellite

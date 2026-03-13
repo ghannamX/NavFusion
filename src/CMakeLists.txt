@@ -1,11 +1,12 @@
 # ── Core library ─────────────────────────────────────────────────────────────
 # Modules are added here as they are implemented.
-# Phase 1: time utilities + input parsers
+# Phase 1: time utilities + input parsers + satellite orbit/clock
 
 add_library(fgo_ppp STATIC)
 
 add_subdirectory(gnss/time)
 add_subdirectory(gnss/input)
+add_subdirectory(gnss/satellite)
 
 target_link_libraries(fgo_ppp
     PUBLIC
@@ -15,6 +16,7 @@ target_link_libraries(fgo_ppp
         fmt::fmt
         gnss_time
         gnss_input
+        gnss_satellite
 )
 
 target_include_directories(fgo_ppp

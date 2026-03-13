@@ -338,21 +338,21 @@ ParseResult<RinexObsHeader> RinexObsParser::parseHeaderSection(
         }
         else if (label == "TIME OF FIRST OBS")
         {
-            header.timeOfFirstObservation.year   = parseIntField(state.line, 0, 6);
-            header.timeOfFirstObservation.month  = parseIntField(state.line, 6, 6);
-            header.timeOfFirstObservation.day    = parseIntField(state.line, 12, 6);
-            header.timeOfFirstObservation.hour   = parseIntField(state.line, 18, 6);
-            header.timeOfFirstObservation.minute = parseIntField(state.line, 24, 6);
-            header.timeOfFirstObservation.second = parseDoubleField(state.line, 30, 13);
+            header.timeOfFirstObservation.year_   = parseIntField(state.line, 0, 6);
+            header.timeOfFirstObservation.month_  = parseIntField(state.line, 6, 6);
+            header.timeOfFirstObservation.day_    = parseIntField(state.line, 12, 6);
+            header.timeOfFirstObservation.hour_   = parseIntField(state.line, 18, 6);
+            header.timeOfFirstObservation.minute_ = parseIntField(state.line, 24, 6);
+            header.timeOfFirstObservation.second_ = parseDoubleField(state.line, 30, 13);
         }
         else if (label == "TIME OF LAST OBS")
         {
-            header.timeOfLastObservation.year   = parseIntField(state.line, 0, 6);
-            header.timeOfLastObservation.month  = parseIntField(state.line, 6, 6);
-            header.timeOfLastObservation.day    = parseIntField(state.line, 12, 6);
-            header.timeOfLastObservation.hour   = parseIntField(state.line, 18, 6);
-            header.timeOfLastObservation.minute = parseIntField(state.line, 24, 6);
-            header.timeOfLastObservation.second = parseDoubleField(state.line, 30, 13);
+            header.timeOfLastObservation.year_   = parseIntField(state.line, 0, 6);
+            header.timeOfLastObservation.month_  = parseIntField(state.line, 6, 6);
+            header.timeOfLastObservation.day_    = parseIntField(state.line, 12, 6);
+            header.timeOfLastObservation.hour_   = parseIntField(state.line, 18, 6);
+            header.timeOfLastObservation.minute_ = parseIntField(state.line, 24, 6);
+            header.timeOfLastObservation.second_ = parseDoubleField(state.line, 30, 13);
         }
         else if (label == "LEAP SECONDS")
         {
@@ -525,12 +525,12 @@ ParseResult<RinexEpoch> RinexObsParser::parseSingleEpoch(
 
     RinexEpoch epoch;
 
-    epoch.time.year   = parseIntField(epochLine, 2, 4);
-    epoch.time.month  = parseIntField(epochLine, 7, 2);
-    epoch.time.day    = parseIntField(epochLine, 10, 2);
-    epoch.time.hour   = parseIntField(epochLine, 13, 2);
-    epoch.time.minute = parseIntField(epochLine, 16, 2);
-    epoch.time.second = parseDoubleField(epochLine, 18, 11);
+    epoch.time.year_   = parseIntField(epochLine, 2, 4);
+    epoch.time.month_  = parseIntField(epochLine, 7, 2);
+    epoch.time.day_    = parseIntField(epochLine, 10, 2);
+    epoch.time.hour_   = parseIntField(epochLine, 13, 2);
+    epoch.time.minute_ = parseIntField(epochLine, 16, 2);
+    epoch.time.second_ = parseDoubleField(epochLine, 18, 11);
 
     if (!epoch.time.isValidEpoch())
     {

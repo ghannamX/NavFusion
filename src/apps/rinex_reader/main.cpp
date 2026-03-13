@@ -70,20 +70,20 @@ int main(int argc, char *argv[])
         const auto &last  = data.epochs.back();
 
         std::cout << "  First epoch               : "
-                  << first.time.year << "-"
-                  << first.time.month << "-"
-                  << first.time.day << " "
-                  << first.time.hour << ":"
-                  << first.time.minute << ":"
-                  << first.time.second << "\n";
+                  << first.time.year_ << "-"
+                  << first.time.month_ << "-"
+                  << first.time.day_ << " "
+                  << first.time.hour_ << ":"
+                  << first.time.minute_ << ":"
+                  << first.time.second_ << "\n";
 
         std::cout << "  Last epoch                : "
-                  << last.time.year << "-"
-                  << last.time.month << "-"
-                  << last.time.day << " "
-                  << last.time.hour << ":"
-                  << last.time.minute << ":"
-                  << last.time.second << "\n";
+                  << last.time.year_ << "-"
+                  << last.time.month_ << "-"
+                  << last.time.day_ << " "
+                  << last.time.hour_ << ":"
+                  << last.time.minute_ << ":"
+                  << last.time.second_ << "\n";
 
         // Print first epoch satellite details
         std::cout << "\n=== First Epoch Detail ===\n";

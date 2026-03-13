@@ -80,12 +80,12 @@ int main(int argc, char *argv[])
         {
             std::cout << "  "
                       << eph.satelliteId.formatSatelliteIdAsRinex3String() << "   "
-                      << eph.timeOfClock.year << "-"
-                      << std::setfill('0') << std::setw(2) << eph.timeOfClock.month << "-"
-                      << std::setw(2) << eph.timeOfClock.day << " "
-                      << std::setw(2) << eph.timeOfClock.hour << ":"
-                      << std::setw(2) << eph.timeOfClock.minute << ":"
-                      << std::setw(2) << static_cast<int>(eph.timeOfClock.second)
+                      << eph.timeOfClock.year_ << "-"
+                      << std::setfill('0') << std::setw(2) << eph.timeOfClock.month_ << "-"
+                      << std::setw(2) << eph.timeOfClock.day_ << " "
+                      << std::setw(2) << eph.timeOfClock.hour_ << ":"
+                      << std::setw(2) << eph.timeOfClock.minute_ << ":"
+                      << std::setw(2) << static_cast<int>(eph.timeOfClock.second_)
                       << std::setfill(' ') << "   "
                       << std::scientific << std::setprecision(6)
                       << std::setw(16) << eph.clockBias << " "

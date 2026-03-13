@@ -87,7 +87,7 @@ struct RinexEpoch
     //                            Member Variables                               //
     //--------------------------------------------------------------------------//
 
-    GnssTime                          time;
+    DateTime                          time;
     /*!< Epoch timestamp in the time system declared in the file header. */
 
     EpochFlag                         flag = EpochFlag::NormalObservation;
@@ -196,8 +196,8 @@ struct RinexObsHeader
     ObservationTypeMap  observationTypes;
     /*!< Constellation → ordered observation code list (column order).
      *   This is the key structure for slot-based per-satellite data access. */
-    GnssTime            timeOfFirstObservation;      /*!< From TIME OF FIRST OBS */
-    GnssTime            timeOfLastObservation;       /*!< From TIME OF LAST OBS (optional) */
+    DateTime            timeOfFirstObservation;      /*!< From TIME OF FIRST OBS */
+    DateTime            timeOfLastObservation;       /*!< From TIME OF LAST OBS (optional) */
     double              nominalSamplingInterval = 0.0;
     /*!< Nominal sampling interval in seconds from the INTERVAL header record.
      *   0.0 means the record was absent or the interval is irregular. */

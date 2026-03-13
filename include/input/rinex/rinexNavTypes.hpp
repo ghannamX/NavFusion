@@ -86,7 +86,7 @@ struct GpsBroadcastEphemeris
     SatId    satelliteId;
     /*!< GPS satellite identifier (e.g. G01, G32). */
 
-    GnssTime timeOfClock;
+    DateTime timeOfClock;
     /*!< Toc — reference epoch for the SV clock correction polynomial.
      *   Calendar time in GPS time system. */
 

@@ -547,12 +547,12 @@ ParseResult<GpsBroadcastEphemeris> RinexNavParser::parseGpsNavigationRecord(
     eph.satelliteId = *satId;
 
     // Parse epoch (Toc)
-    eph.timeOfClock.year   = parseIntField(line0, 4, 4);
-    eph.timeOfClock.month  = parseIntField(line0, 9, 2);
-    eph.timeOfClock.day    = parseIntField(line0, 12, 2);
-    eph.timeOfClock.hour   = parseIntField(line0, 15, 2);
-    eph.timeOfClock.minute = parseIntField(line0, 18, 2);
-    eph.timeOfClock.second = static_cast<double>(parseIntField(line0, 21, 2));
+    eph.timeOfClock.year_   = parseIntField(line0, 4, 4);
+    eph.timeOfClock.month_  = parseIntField(line0, 9, 2);
+    eph.timeOfClock.day_    = parseIntField(line0, 12, 2);
+    eph.timeOfClock.hour_   = parseIntField(line0, 15, 2);
+    eph.timeOfClock.minute_ = parseIntField(line0, 18, 2);
+    eph.timeOfClock.second_ = static_cast<double>(parseIntField(line0, 21, 2));
 
     if (!eph.timeOfClock.isValidEpoch())
     {
